@@ -1,0 +1,8 @@
+BackendHospitalProject/bin/
+BackendHospitalProject/obj/
+BackendHospitalProject/appsettings.json
+EyeAIService/test.py
+EyeAIService/test2.py
+EyeAIService/main.py.save
+.env
+**/appsettings.json
