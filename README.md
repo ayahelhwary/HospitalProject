@@ -165,9 +165,4 @@ HospitalProject/
 
 > ⚠️ Never commit `appsettings.json` or `.env` to GitHub.
 
----
 
-## 👩‍💻 Developer
-
-**Aya Elhwary**  
-GitHub: [@ayahelhwary](https://github.com/ayahelhwary)
