@@ -73,6 +73,7 @@ export default {
         'card': 'var(--shadow-card)',
         'card-hover': 'var(--shadow-hover)',
         'button': 'var(--shadow-button)',
+        'lg-soft': 'var(--shadow-lg-soft)',
       },
       keyframes: {
         "accordion-down": {

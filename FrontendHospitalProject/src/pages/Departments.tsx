@@ -20,6 +20,7 @@ import {
   Building2,
 } from "lucide-react";
 import { departments as departmentsApi, type DepartmentDto } from "@/lib/api";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -153,10 +154,10 @@ export default function Departments() {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`flex h-9 items-center justify-center px-4 rounded-lg transition-colors ${
+              className={`flex h-9 items-center justify-center px-4 rounded-lg transition-all duration-200 ${
                 selectedCategory === category
-                  ? "bg-slate-200"
-                  : "bg-white border border-border hover:border-primary/50"
+                  ? "bg-primary text-primary-foreground shadow-button"
+                  : "bg-card border border-border hover:border-primary/40 hover:shadow-sm"
               }`}
             >
               <span className="text-sm font-medium">{category}</span>
@@ -171,7 +172,7 @@ export default function Departments() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-xl border border-border bg-card p-6 h-48 animate-pulse" />
+                <div key={i} className="rounded-xl border border-border bg-card p-6 h-52 shimmer" />
               ))}
             </div>
           ) : (
@@ -181,9 +182,9 @@ export default function Departments() {
                 return (
                   <div
                     key={dept.id}
-                    className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-6 hover:shadow-lg transition-all"
+                    className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-6 shadow-card card-hover"
                   >
-                    <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
                       <Icon className="w-6 h-6" />
                     </div>
 
@@ -193,7 +194,7 @@ export default function Departments() {
                         {dept.description || "Specialized medical care for our patients."}
                       </p>
                       {dept.is_emergency && (
-                        <span className="inline-block mt-2 text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                        <span className="badge-emergency mt-2">
                           24/7 Emergency
                         </span>
                       )}
@@ -208,7 +209,7 @@ export default function Departments() {
                       </Link>
                       <Link
                         to="/appointments"
-                        className="text-sm text-muted-foreground hover:text-primary"
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
                       >
                         Book Appointment
                       </Link>
@@ -220,7 +221,11 @@ export default function Departments() {
           )}
 
           {!loading && filteredDepartments.length === 0 && (
-            <p className="text-muted-foreground mt-4">No departments found.</p>
+            <EmptyState
+              icon={Building2}
+              title="No departments found"
+              description="Try adjusting your search or filter to find what you're looking for."
+            />
           )}
         </div>
       </main>

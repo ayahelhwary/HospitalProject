@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { auth, appointments as aptApi, doctors as doctorsApi, medicalRecords as recordsApi } from "@/lib/api";
 import type { AppointmentDto, DoctorDto, DoctorAvailabilityDto, MedicalRecordDto } from "@/lib/api";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 type Tab = "overview" | "appointments" | "profile" | "schedule" | "records";
 
@@ -239,8 +240,8 @@ export default function DoctorDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <div className="min-h-screen page-bg-pattern">
+        <PageLoader message="Loading dashboard..." />
       </div>
     );
   }
@@ -276,20 +277,22 @@ export default function DoctorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen page-bg-pattern flex">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
-          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-            <Stethoscope className="w-5 h-5 text-primary" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-out lg:translate-x-0 shadow-lg lg:shadow-none ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="hero-gradient px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Stethoscope className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-bold text-white text-sm">Doctor Portal</h2>
+              <p className="text-xs text-white/75 truncate">{profile?.full_name}</p>
+            </div>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/80 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <div>
-            <h2 className="font-bold text-foreground text-sm">Doctor Portal</h2>
-            <p className="text-xs text-muted-foreground truncate">{profile?.full_name}</p>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden ml-auto">
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
         <nav className="px-3 py-4 space-y-1">
@@ -297,8 +300,10 @@ export default function DoctorDashboard() {
             <button
               key={key}
               onClick={() => { setActiveTab(key); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === key
+                  ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -317,43 +322,46 @@ export default function DoctorDashboard() {
         </div>
       </aside>
 
-      {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-opacity" onClick={() => setSidebarOpen(false)} />}
 
       <div className="flex-1 lg:ml-64">
-        <header className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-card/90 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors">
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-bold text-foreground capitalize">{activeTab}</h1>
+            <div>
+              <h1 className="text-lg font-bold text-foreground capitalize">{activeTab}</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Manage your practice</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-foreground">{profile?.full_name}</p>
               <p className="text-xs text-muted-foreground">{profile?.specialty}</p>
             </div>
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center ring-2 ring-primary/10">
               <User className="w-4 h-4 text-primary" />
             </div>
           </div>
         </header>
 
-        <main className="p-6">
+        <main className="p-6 max-w-6xl">
           {activeTab === "overview" && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-fade-in">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map(({ label, value, icon: Icon, color }) => (
-                  <div key={label} className="bg-card rounded-xl border border-border p-5">
-                    <div className="flex items-center justify-between mb-2">
+                  <div key={label} className="stat-card text-left p-5">
+                    <div className="flex items-center justify-between mb-3">
                       <Icon className={`w-5 h-5 ${color}`} />
                     </div>
                     <p className="text-2xl font-black text-foreground">{value}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{label}</p>
+                    <p className="text-xs text-muted-foreground font-medium mt-0.5">{label}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="bg-card rounded-xl border border-border">
+              <div className="portal-card overflow-hidden">
                 <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                   <h3 className="font-bold text-foreground">Today's Appointments</h3>
                   <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">{todayAppts.length}</span>
@@ -375,7 +383,7 @@ export default function DoctorDashboard() {
           )}
 
           {activeTab === "appointments" && (
-            <div className="bg-card rounded-xl border border-border">
+            <div className="portal-card overflow-hidden animate-fade-in">
               <div className="px-5 py-4 border-b border-border">
                 <h3 className="font-bold text-foreground">All Appointments ({appointments.length})</h3>
               </div>

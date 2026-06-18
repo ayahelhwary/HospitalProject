@@ -182,19 +182,20 @@ namespace BackendHospitalProject.Migrations
                     b.ToTable("Doctors");
                 });
 
-            modelBuilder.Entity("BackendHospitalProject.Models.DoctorAvailability", b =>
+            modelBuilder.Entity("BackendHospitalProject.Models.DoctorSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<string>("EndTime")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -203,14 +204,57 @@ namespace BackendHospitalProject.Migrations
                     b.Property<int>("SlotDurationMinutes")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<string>("StartTime")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("DoctorAvailabilities");
+                    b.ToTable("DoctorSchedules");
+                });
+
+            modelBuilder.Entity("BackendHospitalProject.Models.EyeAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("Confidence")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DiagnosisTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Recommendation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("EyeAnalyses");
                 });
 
             modelBuilder.Entity("BackendHospitalProject.Models.MedicalRecord", b =>
@@ -222,6 +266,9 @@ namespace BackendHospitalProject.Migrations
                     b.Property<string>("Allergies")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("AppointmentId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -284,6 +331,8 @@ namespace BackendHospitalProject.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
 
                     b.HasIndex("DoctorId");
 
@@ -399,10 +448,10 @@ namespace BackendHospitalProject.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("BackendHospitalProject.Models.DoctorAvailability", b =>
+            modelBuilder.Entity("BackendHospitalProject.Models.DoctorSchedule", b =>
                 {
                     b.HasOne("BackendHospitalProject.Models.Doctor", "Doctor")
-                        .WithMany("Availabilities")
+                        .WithMany("Schedules")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -410,8 +459,24 @@ namespace BackendHospitalProject.Migrations
                     b.Navigation("Doctor");
                 });
 
+            modelBuilder.Entity("BackendHospitalProject.Models.EyeAnalysis", b =>
+                {
+                    b.HasOne("BackendHospitalProject.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("BackendHospitalProject.Models.MedicalRecord", b =>
                 {
+                    b.HasOne("BackendHospitalProject.Models.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("BackendHospitalProject.Models.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
@@ -422,6 +487,8 @@ namespace BackendHospitalProject.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Appointment");
 
                     b.Navigation("Doctor");
 
@@ -443,7 +510,7 @@ namespace BackendHospitalProject.Migrations
                 {
                     b.Navigation("Appointments");
 
-                    b.Navigation("Availabilities");
+                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("BackendHospitalProject.Models.Patient", b =>

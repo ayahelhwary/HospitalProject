@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import { AIChatbot } from "./components/AIChatbot";
+import { ScrollToTop } from "./components/ScrollToTop";
 import PatientAuth from "./pages/PatientAuth";
 import PatientPortal from "./pages/PatientPortal";
 import DoctorView from "./pages/DoctorView";
@@ -29,6 +30,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/careers" element={<Careers />} />
           <Route path="/" element={<Home />} />

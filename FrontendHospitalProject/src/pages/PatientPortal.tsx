@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { auth, patients, medicalRecords, qrCodes, appointments as aptApi, eyeAnalysis } from "@/lib/api";
 import type { PatientDto, MedicalRecordDto, UpdatePatientPayload, AppointmentDto, EyeAnalysisDto } from "@/lib/api";
+import { PageLoader } from "@/components/ui/PageLoader";
+import { PatientMedicalRecordsView } from "@/components/patient/PatientMedicalRecordsView";
 
-type Tab = "profile" | "appointments" | "qr" | "eyescans";
+type Tab = "profile" | "appointments" | "records" | "qr" | "eyescans";
 
 export default function PatientPortal() {
   const navigate = useNavigate();
@@ -177,74 +179,74 @@ export default function PatientPortal() {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        </div>
+        <PageLoader message="Loading your portal..." />
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8 md:py-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="w-6 h-6 text-primary" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 portal-card p-5">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center ring-2 ring-primary/10">
+              <User className="w-7 h-7 text-primary" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">{profile?.full_name}</h1>
               <p className="text-sm text-muted-foreground">Patient Portal</p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleLogout} className="gap-2">
+          <Button variant="outline" onClick={handleLogout} className="gap-2 shrink-0">
             <LogOut className="w-4 h-4" />
             Logout
           </Button>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <Calendar className="w-5 h-5 text-primary mx-auto mb-1" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+          <div className="stat-card">
+            <Calendar className="w-5 h-5 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-primary">{upcomingAppts.length}</p>
             <p className="text-xs text-muted-foreground mt-1">Upcoming</p>
           </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <FileText className="w-5 h-5 text-primary mx-auto mb-1" />
+          <div className="stat-card">
+            <FileText className="w-5 h-5 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-primary">{records.length}</p>
             <p className="text-xs text-muted-foreground mt-1">Medical Record</p>
           </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <Droplet className="w-5 h-5 text-primary mx-auto mb-1" />
+          <div className="stat-card">
+            <Droplet className="w-5 h-5 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-primary">{profile?.blood_type || "—"}</p>
             <p className="text-xs text-muted-foreground mt-1">Blood Type</p>
           </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <QrCode className="w-5 h-5 text-primary mx-auto mb-1" />
+          <div className="stat-card">
+            <QrCode className="w-5 h-5 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-primary">{qrCode ? "✓" : "—"}</p>
             <p className="text-xs text-muted-foreground mt-1">QR Code</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 bg-muted p-1 rounded-lg mb-6">
+        <div className="flex gap-1.5 bg-muted p-1.5 rounded-xl mb-6 overflow-x-auto hide-scrollbar">
           {[
             { key: "profile", label: "My Profile", icon: User },
             { key: "appointments", label: "My Appointments", icon: Calendar },
+            { key: "records", label: "Medical Records", icon: FileText },
             { key: "eyescans", label: "Eye Scans", icon: ScanEye },
             { key: "qr", label: "QR Code", icon: QrCode },
           ].map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key as Tab)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-semibold rounded-md transition-colors ${
-                activeTab === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              className={`tab-pill flex-1 min-w-fit ${
+                activeTab === key ? "tab-pill-active" : "tab-pill-inactive"
               }`}
             >
-              <Icon className="w-4 h-4" />
-              {label}
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{label.split(" ")[0]}</span>
             </button>
           ))}
         </div>
@@ -252,7 +254,7 @@ export default function PatientPortal() {
         {/* Profile Tab */}
         {activeTab === "profile" && profile && (
           <div className="space-y-4">
-            <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+            <div className="bg-card rounded-xl border border-border p-6 space-y-4 portal-card">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-bold text-foreground">Personal Information</h2>
                 {!editMode ? (
@@ -431,6 +433,15 @@ export default function PatientPortal() {
               );})
             )}
           </div>
+        )}
+
+        {/* Medical Records Tab */}
+        {activeTab === "records" && profile && (
+          <PatientMedicalRecordsView
+            profile={profile}
+            records={records}
+            appointments={appts}
+          />
         )}
 
         {/* Eye Scans Tab */}

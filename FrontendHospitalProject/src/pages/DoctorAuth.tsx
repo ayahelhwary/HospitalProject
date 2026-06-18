@@ -42,17 +42,17 @@ export default function DoctorAuth() {
 
   return (
     <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full">
+      <div className="auth-bg min-h-[85vh] flex items-center justify-center px-4 py-12 relative">
+        <div className="max-w-md w-full relative z-10 animate-slide-up">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 ring-4 ring-primary/5">
               <Stethoscope className="w-9 h-9 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Doctor Portal</h1>
-            <p className="text-muted-foreground text-sm mt-1">Sign in to access your dashboard</p>
+            <p className="text-muted-foreground text-sm mt-1.5">Sign in to access your dashboard</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4 bg-card rounded-xl border border-border p-6">
+          <form onSubmit={handleLogin} className="space-y-4 portal-card rounded-xl border border-border p-6 md:p-8 shadow-lg-soft">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -67,7 +67,7 @@ export default function DoctorAuth() {
                 <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required />
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Sign In
             </Button>

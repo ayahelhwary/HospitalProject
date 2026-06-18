@@ -76,19 +76,20 @@ export default function PatientAuth() {
 
   return (
     <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <div className="max-w-md w-full">
+      <div className="auth-bg min-h-[85vh] flex items-center justify-center px-4 py-12 relative">
+        <div className="max-w-md w-full relative z-10 animate-slide-up">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 ring-4 ring-primary/5">
               <Heart className="w-9 h-9 text-primary" />
             </div>
             <h1 className="text-2xl font-bold text-foreground">Patient Portal</h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="text-muted-foreground text-sm mt-1.5">
               {mode === "login" ? "Sign in to access your medical profile" : "Create your new account"}
             </p>
           </div>
 
-          <div className="flex rounded-lg bg-muted p-1 mb-8">
+          <div className="portal-card p-6 md:p-8 shadow-lg-soft">
+          <div className="flex rounded-xl bg-muted p-1 mb-6">
             <button
               className={`flex-1 py-2 text-sm font-semibold rounded-md transition-colors ${
                 mode === "login" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
@@ -149,7 +150,7 @@ export default function PatientAuth() {
                       name="blood_type"
                       value={form.blood_type}
                       onChange={handleChange}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:outline-none transition-shadow"
                     >
                       <option value="">Select</option>
                       {bloodTypes.map(t => (
@@ -211,11 +212,12 @@ export default function PatientAuth() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full mt-2" size="lg" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {mode === "login" ? "Sign In" : "Create Account"}
             </Button>
           </form>
+          </div>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             For emergencies call{" "}

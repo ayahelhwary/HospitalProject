@@ -7,6 +7,8 @@ import { Search, Star, Check, Clock, Loader2, User } from "lucide-react";
 import { doctors as doctorsApi } from "@/lib/api";
 import type { DoctorDto } from "@/lib/api";
 import { getDoctorImage } from "@/lib/doctorImages";
+import { PageLoader } from "@/components/ui/PageLoader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function Doctors() {
   const [allDoctors, setAllDoctors] = useState<DoctorDto[]>([]);
@@ -100,19 +102,19 @@ export default function Doctors() {
 
         {/* Doctor Grid */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          </div>
+          <PageLoader message="Finding specialists..." />
         ) : filteredDoctors.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <p className="text-lg font-medium">No doctors found</p>
-          </div>
+          <EmptyState
+            icon={User}
+            title="No doctors found"
+            description="Try adjusting your search, specialty filter, or availability settings."
+          />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredDoctors.map((doctor) => (
               <div
                 key={doctor.id}
-                className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border transition-all hover:shadow-md hover:ring-primary/20"
+                className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-card ring-1 ring-border card-hover"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                   {getDoctorImage(Number(doctor.id), doctor.avatar_url) ? (

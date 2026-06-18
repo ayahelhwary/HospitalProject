@@ -391,7 +391,7 @@ export const eyeAnalysis = {
     const token = localStorage.getItem("hospital_token");
     const formData = new FormData();
     formData.append("image", file);
-    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5242"}/api/eye-analyses`, {
+    const res = await fetch(`${API_BASE}/api/eye-analyses`, {
       method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
