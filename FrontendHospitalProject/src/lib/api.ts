@@ -126,10 +126,30 @@ export interface DoctorAvailabilityDto {
   is_active: boolean;
 }
 
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  page_size: number;
+  total_count: number;
+  total_pages: number;
+}
+
 export const doctors = {
-  getAll: (params?: { specialty?: string; category?: string; search?: string }) => {
-    const qs = new URLSearchParams(params as Record<string, string>).toString();
-    return request<DoctorDto[]>(`/api/doctors${qs ? "?" + qs : ""}`);
+  getAll: (params?: {
+    specialty?: string;
+    category?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  }) => {
+    const queryParams: Record<string, string> = {};
+    if (params?.specialty) queryParams.specialty = params.specialty;
+    if (params?.category) queryParams.category = params.category;
+    if (params?.search) queryParams.search = params.search;
+    if (params?.page) queryParams.page = String(params.page);
+    if (params?.pageSize) queryParams.pageSize = String(params.pageSize);
+    const qs = new URLSearchParams(queryParams).toString();
+    return request<PagedResult<DoctorDto>>(`/api/doctors${qs ? "?" + qs : ""}`);
   },
 
   getById: (id: number) => request<DoctorDto>(`/api/doctors/${id}`),
@@ -215,7 +235,7 @@ export const patients = {
     // Normalize: backend may return PhoneNumber (PascalCase) instead of phone
     return {
       ...p,
-      phone: p.phone ?? p.phone_number ?? (p as Record<string,string>)["PhoneNumber"] ?? undefined,
+      phone: p.phone ?? p.phone_number ?? (p as unknown as Record<string,string>)["PhoneNumber"] ?? undefined,
     };
   },
 
