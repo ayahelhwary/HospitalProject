@@ -67,8 +67,8 @@ export default function Appointments() {
 
   // Load doctors
   useEffect(() => {
-    doctorsApi.getAll()
-      .then(setAllDoctors)
+    doctorsApi.getAll({ pageSize: 100 })
+      .then((res) => setAllDoctors(res.items))
       .catch(() => setAllDoctors([]))
       .finally(() => setLoadingDoctors(false));
   }, []);

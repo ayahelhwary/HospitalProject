@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendHospitalProject.Data;
+using BackendHospitalProject.DTOs;
 using BackendHospitalProject.DTOs.MedicalRecord;
 using BackendHospitalProject.Models;
 
@@ -35,19 +36,40 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
     };
 
     [HttpGet]
-    public async Task<IActionResult> GetRecords([FromQuery] int? patientId)
+    public async Task<IActionResult> GetRecords(
+        [FromQuery] int? patientId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        
         var id = GetUserId();
         var role = GetRole();
-
+        
         IQueryable<MedicalRecord> query = db.MedicalRecords.Include(m => m.Doctor);
-
+        
         if (role == "patient") query = query.Where(m => m.PatientId == id);
         else if (role == "doctor" && patientId.HasValue) query = query.Where(m => m.PatientId == patientId.Value && m.DoctorId == id);
         else if (role == "doctor") query = query.Where(m => m.DoctorId == id);
+        
+        var totalCount = await query.CountAsync();
+        
+        var records = await query
+        .OrderByDescending(m => m.RecordDate)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+        
+        var result = new PagedResult<MedicalRecordDto>
+        {
+            Items = records.Select(ToDto).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
 
-        var records = await query.OrderByDescending(m => m.RecordDate).ToListAsync();
-        return Ok(records.Select(ToDto));
+         return Ok(result);
     }
 
     [HttpGet("{id:int}")]

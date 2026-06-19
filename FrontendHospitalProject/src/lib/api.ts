@@ -338,10 +338,14 @@ export interface MedicalRecordDto {
 }
 
 export const medicalRecords = {
-  getAll: (patientId?: string) =>
-    request<MedicalRecordDto[]>(
-      `/api/medical-records${patientId ? "?patient_id=" + patientId : ""}`
-    ),
+  getAll: (params?: { patientId?: string; page?: number; pageSize?: number }) => {
+    const queryParams: Record<string, string> = {};
+    if (params?.patientId) queryParams.patient_id = params.patientId;
+    if (params?.page) queryParams.page = String(params.page);
+    if (params?.pageSize) queryParams.pageSize = String(params.pageSize);
+    const qs = new URLSearchParams(queryParams).toString();
+    return request<PagedResult<MedicalRecordDto>>(`/api/medical-records${qs ? "?" + qs : ""}`);
+  },
 
   getById: (id: number) => request<MedicalRecordDto>(`/api/medical-records/${id}`),
 
