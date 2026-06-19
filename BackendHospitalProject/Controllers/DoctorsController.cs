@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendHospitalProject.Data;
+using BackendHospitalProject.DTOs;
 using BackendHospitalProject.DTOs.Doctor;
 
 namespace BackendHospitalProject.Controllers;
@@ -40,8 +41,13 @@ public class DoctorsController(AppDbContext db) : ControllerBase
     public async Task<IActionResult> GetAll(
         [FromQuery] string? specialty,
         [FromQuery] string? category,
-        [FromQuery] string? search)
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        
         var query = db.Doctors.AsQueryable();
         if (!string.IsNullOrEmpty(specialty))
             query = query.Where(d => d.Specialty.ToLower().Contains(specialty.ToLower()));
@@ -59,7 +65,14 @@ public class DoctorsController(AppDbContext db) : ControllerBase
                 d.LastName.ToLower().Contains(search.ToLower()) ||
                 d.Specialty.ToLower().Contains(search.ToLower()));
 
-        var doctors = await query.OrderBy(d => d.FirstName).ToListAsync();
+        var totalCount = await query.CountAsync();
+
+        var doctors = await query
+            .OrderBy(d => d.FirstName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
         var todayDow = (int)DateTime.Today.DayOfWeek;
         var availableIds = await db.DoctorSchedules
             .Where(s => s.DayOfWeek == todayDow && s.IsActive)
@@ -68,8 +81,17 @@ public class DoctorsController(AppDbContext db) : ControllerBase
             .ToListAsync();
         var deptCategories = await db.Departments
             .ToDictionaryAsync(dep => dep.Name.ToLower(), dep => dep.Category);
-        return Ok(doctors.Select(d => ToDto(d, availableIds.Contains(d.Id),
-            deptCategories.TryGetValue(d.Department?.ToLower() ?? "", out var cat) ? cat : "")));
+
+        var result = new PagedResult<DoctorDto>
+        {
+            Items = doctors.Select(d => ToDto(d, availableIds.Contains(d.Id),
+                deptCategories.TryGetValue(d.Department?.ToLower() ?? "", out var cat) ? cat : "")).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("{id:int}")]
