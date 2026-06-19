@@ -34,11 +34,11 @@ export default function PatientPortal() {
   const [eyeScans, setEyeScans] = useState<EyeAnalysisDto[]>([]);
 
   const fetchData = useCallback(async () => {
-    const [recs, apts] = await Promise.all([
-      medicalRecords.getAll(),
+    const [recsRes, apts] = await Promise.all([
+      medicalRecords.getAll({ pageSize: 100 }),
       aptApi.getPatientAppointments(),
     ]);
-    setRecords(recs);
+    setRecords(recsRes.items);
     setAppts(apts);
 
     try {

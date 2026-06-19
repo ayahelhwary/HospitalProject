@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using BackendHospitalProject.Data;
+using BackendHospitalProject.DTOs;
 using BackendHospitalProject.DTOs.Appointment;
 using BackendHospitalProject.Models;
 
@@ -68,8 +69,14 @@ public class AppointmentsController(AppDbContext db) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string? status)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] string? status,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        
         var userId = GetUserId();
         var role = GetRole();
 
@@ -85,8 +92,23 @@ public class AppointmentsController(AppDbContext db) : ControllerBase
         if (!string.IsNullOrEmpty(status))
             query = query.Where(a => a.Status.ToLower() == status.ToLower());
 
-        var apts = await query.OrderByDescending(a => a.AppointmentDate).ToListAsync();
-        return Ok(apts.Select(a => ToDto(a, a.Patient, a.Doctor)));
+        var totalCount = await query.CountAsync();
+
+        var apts = await query
+            .OrderByDescending(a => a.AppointmentDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var result = new PagedResult<AppointmentDto>
+        {
+            Items = apts.Select(a => ToDto(a, a.Patient, a.Doctor)).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+        
+        return Ok(result);
     }
 
     [HttpGet("patient")]

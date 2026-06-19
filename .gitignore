@@ -6,3 +6,12 @@ EyeAIService/test2.py
 EyeAIService/main.py.save
 .env
 **/appsettings.json
+
+# Database runtime files
+*.db-shm
+*.db-wal
+
+# Screenshots / temp images
+Untitled.png
+Untitled١.png
+*.png
