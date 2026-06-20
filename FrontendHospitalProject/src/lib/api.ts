@@ -195,10 +195,27 @@ export const doctors = {
       body: JSON.stringify(data),
     }),
 
-  deleteAvailability: (id: number) =>
+
+    deleteAvailability: (id: number) =>
     request<{ message: string }>(`/api/doctors/me/availability/${id}`, {
       method: "DELETE",
     }),
+
+    uploadPhoto: async (file: File) => {
+      const token = localStorage.getItem("hospital_token");
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5242"}/api/doctors/me/photo`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: `HTTP ${res.status}` }));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    return res.json() as Promise<{ profile_image_url: string }>;
+  },
 };
 
 // ─── Patients ─────────────────────────────────────────────────────────────────

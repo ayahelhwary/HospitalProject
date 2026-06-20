@@ -103,6 +103,7 @@ app.UseSwaggerUI(c =>
 app.UseStaticFiles();
 app.UseCors("FrontendPolicy");
 app.UseAuthentication();
+app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
 
