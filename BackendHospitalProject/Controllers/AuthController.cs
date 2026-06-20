@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BackendHospitalProject.DTOs.Auth;
@@ -18,6 +19,7 @@ public class AuthController(AuthService authService) : ControllerBase
         catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
     }
 
+    [EnableRateLimiting("LoginPolicy")]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {

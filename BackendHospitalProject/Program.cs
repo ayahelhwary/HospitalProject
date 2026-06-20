@@ -1,4 +1,6 @@
 using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -35,6 +37,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization();
+
+// Rate limiting - protect login endpoint from brute-force attacks
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("LoginPolicy", opt =>
+    {
+        opt.PermitLimit = 5;                       // 5 attempts
+        opt.Window = TimeSpan.FromMinutes(1);       // per 1 minute
+        opt.QueueLimit = 0;                         // no queueing, reject immediately
+    });
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            message = "Too many login attempts. Please try again in a minute."
+        }, cancellationToken: token);
+    };
+});
 
 // CORS - allow frontend
 builder.Services.AddCors(options =>
@@ -103,7 +126,7 @@ app.UseSwaggerUI(c =>
 app.UseStaticFiles();
 app.UseCors("FrontendPolicy");
 app.UseAuthentication();
-app.UseStaticFiles();
+app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
 
