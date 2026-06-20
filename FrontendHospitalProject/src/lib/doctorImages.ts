@@ -15,7 +15,13 @@ export const DOCTOR_IMAGES: Record<number, string> = {
   9: MALE,     // Mohamed Hassan  — Cardiology
 };
 
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5242";
+
 /** Returns avatar_url from API, or the static mapping as fallback */
 export function getDoctorImage(id: number, avatarUrl?: string): string {
-  return avatarUrl || DOCTOR_IMAGES[id] || "";
+  if (avatarUrl) {
+    return avatarUrl.startsWith("http") ? avatarUrl : `${API_BASE}${avatarUrl}`;
+  }
+  return DOCTOR_IMAGES[id] || "";
 }

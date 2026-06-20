@@ -22,6 +22,7 @@ export default function DoctorDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
@@ -68,8 +69,8 @@ export default function DoctorDashboard() {
   const fetchRecords = useCallback(async () => {
     setLoadingRecords(true);
     try {
-      const data = await recordsApi.getAll();
-      setMyRecords(data);
+      const res = await recordsApi.getAll({ pageSize: 100 });
+      setMyRecords(res.items);
     } catch {
       toast({ title: "Error loading records", variant: "destructive" });
     } finally {
@@ -183,6 +184,22 @@ export default function DoctorDashboard() {
       toast({ title: "Error saving profile", variant: "destructive" });
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const res = await doctorsApi.uploadPhoto(file);
+      setProfile((prev) => prev ? { ...prev, avatar_url: res.profile_image_url } : prev);
+      toast({ title: "Photo updated successfully" });
+    } catch (err: unknown) {
+      toast({ title: "Error uploading photo", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = "";
     }
   };
 
@@ -572,14 +589,47 @@ export default function DoctorDashboard() {
           {activeTab === "profile" && profile && (
             <div className="bg-card rounded-xl border border-border p-6 max-w-2xl">
               {/* Header */}
+
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-8 h-8 text-primary" />
+                <div className="relative w-16 h-16 shrink-0">
+                  <label
+                    htmlFor="photo-upload"
+                    className="block w-16 h-16 rounded-full bg-primary/10 overflow-hidden cursor-pointer group relative"
+                  >
+                    {profile.avatar_url ? (
+                      <img
+                      src={profile.avatar_url?.startsWith("http") ? profile.avatar_url : `${import.meta.env.VITE_API_URL || "http://localhost:5242"}${profile.avatar_url}`}
+                      alt={profile.full_name}
+                      className="w-full h-full object-cover"
+                      />
+
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-8 h-8 text-primary" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      {uploadingPhoto ? (
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      ) : (
+                        <Pencil className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                  </label>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                    disabled={uploadingPhoto}
+                  />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-foreground">{profile.full_name}</h2>
                   <p className="text-muted-foreground">{profile.specialty}</p>
                 </div>
+
                 {!editMode ? (
                   <Button size="sm" variant="outline" onClick={startEdit}>
                     <Pencil className="w-4 h-4 mr-1" /> Edit

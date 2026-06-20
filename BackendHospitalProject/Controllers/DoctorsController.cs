@@ -267,4 +267,39 @@ public class DoctorsController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    [HttpPost("me/photo")]
+    [Authorize(Roles = "doctor")]
+    public async Task<IActionResult> UploadPhoto(IFormFile file)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new { message = "No file uploaded" });
+
+        var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowedTypes.Contains(file.ContentType))
+            return BadRequest(new { message = "Only JPEG, PNG, or WEBP images are allowed" });
+
+        if (file.Length > 5 * 1024 * 1024) // 5MB
+            return BadRequest(new { message = "File too large (max 5MB)" });
+
+        var doctorId = GetDoctorId();
+        var doctor = await db.Doctors.FindAsync(doctorId);
+        if (doctor is null) return NotFound();
+
+        var ext = Path.GetExtension(file.FileName);
+        var fileName = $"doctor_{doctorId}_{Guid.NewGuid()}{ext}";
+        var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "doctors");
+        Directory.CreateDirectory(folderPath);
+        var filePath = Path.Combine(folderPath, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+        
+        doctor.ProfileImageUrl = $"/uploads/doctors/{fileName}";
+        await db.SaveChangesAsync();
+        
+        return Ok(new { profile_image_url = doctor.ProfileImageUrl });
+    }
+
 }
