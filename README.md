@@ -6,15 +6,20 @@ A full-stack smart hospital management system with AI-powered features including
 
 ## ✨ Features
 
-- 🤖 **AI Chatbot Assistant** — 24/7 smart assistant powered by Groq (Llama) that responds in the user's language
-- 👁️ **Eye Disease Analysis** — AI-powered eye image analysis for early diagnosis
-- 📅 **Appointment Booking** — Book appointments with doctors online
-- 👨‍⚕️ **Doctor Profiles** — Browse doctors by specialty and availability
-- 🏥 **Medical Departments** — View all hospital departments and services
-- 📋 **Medical Records** — Secure patient medical history management
-- 🔐 **QR Code Access** — Generate and scan QR codes for patient records
-- 🔑 **Authentication** — JWT-based login for patients and doctors
-
+* 🤖 AI Chatbot Assistant — 24/7 intelligent healthcare assistant powered by Groq (Llama), providing instant responses in the user's preferred language.
+* 👁️ AI Eye Disease Detection — Advanced AI-powered eye image analysis for early disease screening and diagnosis support.
+* 📅 Online Appointment Management — Schedule, reschedule, and manage doctor appointments seamlessly through the platform.
+* ⏰ Automated Appointment Reminders — Email notifications and reminders sent automatically to patients before their scheduled appointments.
+* 👨‍⚕️ Doctor Directory & Profiles — Browse doctor profiles, specialties, qualifications, availability, and consultation schedules.
+* 🏥 Hospital Departments & Services — Explore all medical departments, specialties, and healthcare services offered by the hospital.
+* 📋 Dynamic Medical Records Management — Securely manage and update patient medical records, including diagnoses, prescriptions, treatment plans, and visit history in real time.
+* 📁 Medical File Upload & Sharing — Patients and doctors can upload, view, and share medical documents, reports, prescriptions, laboratory results, and radiology images.
+* 🔐 QR Code-Based Patient Access — Generate and scan unique QR codes for quick and secure access to patient medical records.
+* 💳 Online Payment Integration — Secure online payment support, including InstaPay and other digital payment methods for appointments and medical services.
+* 🔑 Secure Authentication & Authorization — JWT-based authentication with role-based access control for patients, doctors, and administrators.
+* 📊 Admin Dashboard & System Management — Comprehensive administration panel for managing users, doctors, appointments, departments, medical records, payments, reports, and overall system operations.
+* 📈 Analytics & Reporting — Real-time system statistics and reports for appointments, patient activity, doctor performance, and hospital operations.
+* 🔔 Notifications System — In-app and email notifications for appointments and important healthcare alerts.
 ---
 
 ## 🛠️ Tech Stack
